@@ -1,6 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:image_search/data/api.dart';
+import 'package:image_search/data/photo_provider.dart';
 import 'package:image_search/ui/widget/photo_widget.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,14 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Photo> _photos = [];
   final _textController = TextEditingController();
 
-  Future<List<Photo>> fetch(String query) async {
-    final reponse = await http.get(Uri.parse(
-        'https://pixabay.com/api/?key=25565499-7ab173a17174aaa3d9c824095&q=$query&image_type=photo&pretty=true'));
-    Map<String, dynamic> jsonResponse = jsonDecode(reponse.body);
-    Iterable hits = jsonResponse['hits'];
-    return hits.map((e) => Photo.fromJson(e)).toList();
-  }
-
   @override
   void dispose() {
     _textController.dispose();
@@ -33,6 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final photoProvider = PhotoProvider.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -57,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 suffixIcon: IconButton(
                   onPressed: () async {
-                    final photos = await fetch(_textController.text);
+                    final photos =
+                        await photoProvider.api.fetch(_textController.text);
                     setState(() {
                       _photos = photos;
                     });
