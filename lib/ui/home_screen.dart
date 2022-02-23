@@ -1,7 +1,35 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class HomeScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:image_search/ui/widget/photo_widget.dart';
+import 'package:http/http.dart' as http;
+
+import '../model/photo.dart';
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Photo> _photos = [];
+  final _textController = TextEditingController();
+
+  Future<List<Photo>> fetch(String query) async {
+    final reponse = await http.get(Uri.parse(
+        'https://pixabay.com/api/?key=25565499-7ab173a17174aaa3d9c824095&q=$query&image_type=photo&pretty=true'));
+    Map<String, dynamic> jsonResponse = jsonDecode(reponse.body);
+    Iterable hits = jsonResponse['hits'];
+    return hits.map((e) => Photo.fromJson(e)).toList();
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +48,7 @@ class HomeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: _textController,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(
@@ -27,7 +56,11 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 suffixIcon: IconButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final photos = await fetch(_textController.text);
+                    setState(() {
+                      _photos = photos;
+                    });
                     //클릭 후에 나올 액션
                   },
                   icon: const Icon(Icons.search),
@@ -38,22 +71,16 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: GridView.builder(
                 padding: const EdgeInsets.all(16.0),
-                itemCount: 10,
+                itemCount: _photos.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
                 itemBuilder: (context, index) {
-                  return Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: NetworkImage(
-                            'https://image.zdnet.co.kr/2021/02/10/09c6533e01b466d6f17cf44704877be4.jpg'),
-                      ),
-                    ),
+                  final photo = _photos[index];
+                  return PhotoWidget(
+                    photo: photo,
                   );
                 }),
           )
