@@ -10,10 +10,7 @@ void main() {
 
     final result = fakeJson.map((e) => Photo.fromJson(e)).toList();
 
-    expect(
-      viewModel.photoStream,
-      emitsInOrder([equals([]), equals(result)]),
-    );
+    expect(viewModel.photos, result);
   });
 }
 
