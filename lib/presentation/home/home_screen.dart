@@ -14,6 +14,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _textController = TextEditingController();
+
   StreamSubscription? _subscription;
 
   @override
@@ -49,6 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final viewModel = context.watch<HomeViewModel>();
     //watch-> 변동 사항에 대해서 계속해서 모니터링
 
+    final state = viewModel.state;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -80,12 +83,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          viewModel.isLoading
+          state.isLoading
               ? const CircularProgressIndicator()
               : Expanded(
                   child: GridView.builder(
                       padding: const EdgeInsets.all(16.0),
-                      itemCount: viewModel.photos.length,
+                      itemCount: state.photos.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -93,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisSpacing: 16,
                       ),
                       itemBuilder: (context, index) {
-                        final photo = viewModel.photos[index];
+                        final photo = state.photos[index];
                         return PhotoWidget(
                           photo: photo,
                         );

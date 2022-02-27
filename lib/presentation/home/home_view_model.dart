@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:image_search/domain/repository/photo_api_repository.dart';
+import 'package:image_search/presentation/home/home_state.dart';
 import 'package:image_search/presentation/home/home_ui_event.dart';
 
 import '../../data/data_source/result_origin.dart';
@@ -10,13 +11,8 @@ import '../../domain/model/photo.dart';
 
 class HomeViewModel with ChangeNotifier {
   final PhotoApiRepository repository;
-
-  List<Photo> _photos = [];
-  UnmodifiableListView<Photo> get photos => UnmodifiableListView(_photos);
-
-  //이런식으로 만들게 되면 누구든 수정할 수 있게 됌 <- 이러면 안 됌
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  HomeState _state = HomeState([], false);
+  HomeState get state => _state;
 
   final _eventController = StreamController<HomeUiEvent>();
   Stream<HomeUiEvent> get eventStream => _eventController.stream;
@@ -27,18 +23,20 @@ class HomeViewModel with ChangeNotifier {
 
   Future<void> fetch(String query) async {
     final Result<List<Photo>> result = await repository.fetch(query);
-    _isLoading = true;
+
+    _state = state.copy(isLoading: true);
     notifyListeners();
+
     result.when(
       success: (photos) {
-        _photos = photos;
+        _state = state.copy(photos: photos);
         notifyListeners();
       },
       error: (message) {
         _eventController.add(HomeUiEvent.showSnackBar(message));
       },
     );
-    _isLoading = false;
+    _state = state.copy(isLoading: false);
     notifyListeners();
   }
 }
