@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import 'result.dart';
+import 'result_origin.dart';
 
 class PixabayApi {
   final http.Client client;

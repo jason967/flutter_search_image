@@ -1,4 +1,4 @@
-import 'package:image_search/data/data_source/result.dart';
+import 'package:image_search/data/data_source/result_origin.dart';
 
 import '../model/photo.dart';
 

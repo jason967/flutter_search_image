@@ -80,22 +80,25 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          Expanded(
-            child: GridView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: viewModel.photos.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+          viewModel.isLoading
+              ? const CircularProgressIndicator()
+              : Expanded(
+                  child: GridView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: viewModel.photos.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemBuilder: (context, index) {
+                        final photo = viewModel.photos[index];
+                        return PhotoWidget(
+                          photo: photo,
+                        );
+                      }),
                 ),
-                itemBuilder: (context, index) {
-                  final photo = viewModel.photos[index];
-                  return PhotoWidget(
-                    photo: photo,
-                  );
-                }),
-          ),
         ],
       ),
     );
